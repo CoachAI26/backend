@@ -3,42 +3,42 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 
 class PasswordController extends Controller
 {
-    public function forgot(Request $request)
+    public function forgot(ForgotPasswordRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
 
-        $status = Password::sendResetLink($request->only('email'));
-
-        return response()->json([
-            'message' => __($status),
-        ], $status === Password::RESET_LINK_SENT ? 200 : 422);
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['message' => __($status)])
+            : response()->json(['message' => __($status)], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    public function reset(Request $request)
+    public function reset(ResetPasswordRequest $request): JsonResponse
     {
-        $request->validate([
-            'token'    => 'required',
-            'email'    => 'required|email',
-            'password' => 'required|min:8|confirmed',
-        ]);
-
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([
-                    'password' => bcrypt($password),
+                    'password' => Hash::make($password),
                 ])->save();
+
+                // Revoke all tokens after password reset (strong security practice)
+                $user->tokens()->delete();
             }
         );
 
-        return response()->json([
-            'message' => __($status),
-        ], $status === Password::PASSWORD_RESET ? 200 : 422);
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => __($status)])
+            : response()->json(['message' => __($status)], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }
