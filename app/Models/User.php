@@ -21,6 +21,11 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
+        'name', // display name
+        'bio',
+        'profile_picture', // URL to uploaded image
+        'speaking_goals',  // json array e.g. ["build_confidence", "improve_clarity"]
+        'notification_preferences', // json e.g. {"daily_reminder": true, "weekly_report": false}
     ];
 
     /**
@@ -43,6 +48,13 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'speaking_goals' => 'array',
+            'notification_preferences' => 'array',
         ];
+    }
+
+    public function practiceSessions()
+    {
+        return $this->hasMany(PracticeSession::class);
     }
 }
