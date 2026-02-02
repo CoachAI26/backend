@@ -1,61 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sean AI Assistance API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 API for AI-assisted practice sessions and challenges.
 
-## About Laravel
+## Requirements
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Docker & Docker Compose
+- OR PHP 8.2+, Composer, Node.js 20+, MySQL 8.0
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Quick Start with Docker
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Windows
 
-## Learning Laravel
+```bash
+# First time setup
+docker.bat setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+# Start containers
+docker.bat up
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# Stop containers
+docker.bat down
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### macOS / Linux
 
-## Laravel Sponsors
+```bash
+# First time setup
+make setup
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Start containers
+make up
 
-### Premium Partners
+# Stop containers
+make down
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+The API will be available at `http://localhost:8000`
 
-## Contributing
+## Docker Commands
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Command | Description |
+|---------|-------------|
+| `setup` | Initial setup (build, start, migrate, seed) |
+| `build` | Build Docker containers |
+| `up` | Start containers in background |
+| `down` | Stop containers |
+| `restart` | Restart containers |
+| `logs` | View container logs |
+| `shell` | Open shell in app container |
+| `migrate` | Run database migrations |
+| `seed` | Run database seeders |
+| `fresh` | Fresh migration with seeders |
+| `test` | Run PHPUnit tests |
+| `clean` | Remove all containers and volumes |
 
-## Code of Conduct
+### Running Artisan Commands
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# Windows
+docker.bat artisan migrate:status
+docker.bat artisan tinker
 
-## Security Vulnerabilities
+# macOS / Linux
+make artisan cmd="migrate:status"
+make artisan cmd="tinker"
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Services
+
+| Service | Port | Description |
+|---------|------|-------------|
+| Nginx | 8000 | Web server |
+| MySQL | 3306 | Database |
+| Redis | 6379 | Cache/Queue |
+| MailHog | 8025 | Email testing UI (dev only) |
+
+## Local Development (Without Docker)
+
+```bash
+# Install dependencies
+composer install
+npm install
+
+# Configure environment
+cp .env.example .env
+php artisan key:generate
+
+# Run migrations and seeders
+php artisan migrate --seed
+
+# Start development server
+composer dev
+```
+
+## Project Structure
+
+```
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/Api/    # API Controllers
+│   │   ├── Requests/           # Form Requests
+│   │   └── Resources/          # API Resources
+│   └── Models/                 # Eloquent Models
+├── database/
+│   ├── factories/              # Model Factories
+│   ├── migrations/             # Database Migrations
+│   └── seeders/                # Database Seeders
+├── docker/                     # Docker configuration
+│   ├── nginx/                  # Nginx config
+│   ├── php/                    # PHP config
+│   └── supervisor/             # Supervisor config
+├── routes/
+│   └── api.php                 # API Routes
+└── tests/                      # PHPUnit Tests
+```
+
+## API Authentication
+
+This API uses Laravel Sanctum for authentication. Include the token in requests:
+
+```
+Authorization: Bearer {your-token}
+```
+
+## Environment Variables
+
+Copy `.env.docker` to `.env` for Docker setup, or `.env.example` for local setup.
+
+Key variables:
+- `APP_URL` - Application URL
+- `DB_*` - Database configuration
+- `REDIS_*` - Redis configuration
+- `MAIL_*` - Mail configuration
+
+## Testing
+
+```bash
+# Docker
+docker.bat test  # Windows
+make test        # macOS/Linux
+
+# Local
+php artisan test
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License

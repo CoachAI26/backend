@@ -1,0 +1,38 @@
+# Development overrides - automatically loaded with docker-compose up
+# For production, use: docker-compose -f docker-compose.yml up
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - PHP_IDE_CONFIG=serverName=Docker
+
+  nginx:
+    ports:
+      - "8000:80"
+
+  db:
+    ports:
+      - "3306:3306"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog
+    container_name: seanai-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - seanai-network
