@@ -10,6 +10,7 @@ use App\Services\SpeechAnalysisService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use OpenApi\Attributes as OA;
 
 class RecordingController extends Controller
 {
@@ -17,6 +18,40 @@ class RecordingController extends Controller
         protected SpeechAnalysisService $speechAnalysis
     ) {}
 
+    #[OA\Post(
+        path: '/recordings',
+        summary: 'Upload a recording for AI analysis',
+        description: 'Uploads an audio recording for a practice session. The audio is sent to the AI speech analysis engine which returns transcription, fluency scores, filler word detection, pace analysis, and personalised recommendations.',
+        security: [['sanctum' => []]],
+        tags: ['Recordings'],
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: 'multipart/form-data',
+            schema: new OA\Schema(
+                required: ['practice_session_id', 'audio'],
+                properties: [
+                    new OA\Property(property: 'practice_session_id', type: 'integer', example: 1, description: 'ID of the practice session this recording belongs to'),
+                    new OA\Property(property: 'audio', type: 'string', format: 'binary', description: 'Audio file (MP3, WAV, M4A). Max 10 MB.'),
+                ],
+            ),
+        ),
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Recording processed successfully',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'session', ref: '#/components/schemas/PracticeSession'),
+                new OA\Property(property: 'result', ref: '#/components/schemas/PracticeResult'),
+            ],
+        ),
+    )]
+    #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 403, description: 'Session does not belong to the authenticated user')]
+    #[OA\Response(response: 404, description: 'Practice session not found')]
+    #[OA\Response(response: 422, description: 'Validation error')]
     public function store(StoreRecordingRequest $request): JsonResponse
     {
         $session = PracticeSession::findOrFail($request->practice_session_id);

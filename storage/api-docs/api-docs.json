@@ -1,0 +1,1560 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SeanAI Assistance API",
+        "description": "Speech practice and AI-powered analysis API for SpeechFlow. Provides authentication, challenge browsing, practice session management, and AI-driven speech recording analysis.",
+        "contact": {
+            "name": "API Support",
+            "email": "support@speechflow.app"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api/v1",
+            "description": "API v1"
+        }
+    ],
+    "paths": {
+        "/categories": {
+            "get": {
+                "tags": [
+                    "Challenges"
+                ],
+                "summary": "List all categories",
+                "description": "Returns all challenge categories ordered by their display order.",
+                "operationId": "585e205fd11deddc1ed0a0a1da5c58cb",
+                "responses": {
+                    "200": {
+                        "description": "List of categories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "public-speaking"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Public Speaking"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Practice your public speaking skills"
+                                                    },
+                                                    "icon": {
+                                                        "type": "string",
+                                                        "example": "microphone"
+                                                    },
+                                                    "order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/levels": {
+            "get": {
+                "tags": [
+                    "Challenges"
+                ],
+                "summary": "List all levels",
+                "description": "Returns all difficulty levels ordered by their display order.",
+                "operationId": "6ffd224ee025136b97e31f9205e803fd",
+                "responses": {
+                    "200": {
+                        "description": "List of levels",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "beginner"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Beginner"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "For those just starting out"
+                                                    },
+                                                    "color": {
+                                                        "type": "string",
+                                                        "example": "#4CAF50"
+                                                    },
+                                                    "min_score": {
+                                                        "type": "number",
+                                                        "example": 0
+                                                    },
+                                                    "order": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/challenges": {
+            "get": {
+                "tags": [
+                    "Challenges"
+                ],
+                "summary": "List challenges",
+                "description": "Returns challenges with optional category and level filtering.",
+                "operationId": "5f7157215899fabbbf767e5b914a5f47",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "description": "Filter by category slug",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "public-speaking"
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "description": "Filter by level slug",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "beginner"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of challenges",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Challenge"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Category or level not found"
+                    }
+                }
+            }
+        },
+        "/challenges/{id}": {
+            "get": {
+                "tags": [
+                    "Challenges"
+                ],
+                "summary": "Get a single challenge",
+                "description": "Returns a specific challenge by ID, including its category and level.",
+                "operationId": "909afc90fe083c4d9022d73558a4a4d5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Challenge ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Challenge details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Challenge"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Challenge not found"
+                    }
+                }
+            }
+        },
+        "/practice-sessions": {
+            "get": {
+                "tags": [
+                    "Practice Sessions"
+                ],
+                "summary": "List practice sessions",
+                "description": "Returns all practice sessions for the authenticated user, ordered by most recent first.",
+                "operationId": "aabedfb320883069d010174a4062fcf4",
+                "responses": {
+                    "200": {
+                        "description": "List of sessions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PracticeSession"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Practice Sessions"
+                ],
+                "summary": "Start a new practice session",
+                "description": "Creates a new practice session for the authenticated user, linked to a specific challenge.",
+                "operationId": "116f4435e0236f25425d559cdb8f3876",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "challenge_id"
+                                ],
+                                "properties": {
+                                    "challenge_id": {
+                                        "description": "ID of the challenge to practice",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "description": "Optional custom session name. Auto-generated if omitted.",
+                                        "type": "string",
+                                        "maxLength": 100,
+                                        "example": "My morning practice"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Session created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PracticeSession"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error (invalid challenge_id)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/practice-sessions/{id}": {
+            "get": {
+                "tags": [
+                    "Practice Sessions"
+                ],
+                "summary": "Get a practice session",
+                "description": "Returns a specific practice session with its challenge and result.",
+                "operationId": "df1fc017e68150a2d33480874c0746ed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Practice session ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/PracticeSession"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Session not found"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/profile": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get current user profile",
+                "description": "Returns the authenticated user's profile including computed statistics (sessions count, total minutes, average score) and achievements.",
+                "operationId": "c6a79007a56511faa6f48397a2d15867",
+                "responses": {
+                    "200": {
+                        "description": "Profile with statistics and achievements",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "user@example.com"
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Aspiring public speaker",
+                                                    "nullable": true
+                                                },
+                                                "profile_picture": {
+                                                    "type": "string",
+                                                    "example": "/storage/profile_pictures/abc123.jpg",
+                                                    "nullable": true
+                                                },
+                                                "speaking_goals": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "build_confidence",
+                                                        "improve_clarity"
+                                                    ]
+                                                },
+                                                "notification_preferences": {
+                                                    "properties": {
+                                                        "daily_reminder": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "weekly_report": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "statistics": {
+                                                    "properties": {
+                                                        "sessions": {
+                                                            "type": "integer",
+                                                            "example": 12
+                                                        },
+                                                        "minutes": {
+                                                            "type": "integer",
+                                                            "example": 45
+                                                        },
+                                                        "avg_score": {
+                                                            "type": "number",
+                                                            "format": "float",
+                                                            "example": 7.8
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "achievements": {
+                                                    "properties": {
+                                                        "first_session": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "five_sessions": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "ten_sessions": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        },
+                                                        "pro_speaker": {
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update profile",
+                "description": "Updates the authenticated user's profile. Supports partial updates — only send the fields you want to change. Profile picture is uploaded as multipart form data.",
+                "operationId": "42803079b1b23a321f57eae40c98b303",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "John Doe"
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "maxLength": 500,
+                                        "example": "Aspiring public speaker"
+                                    },
+                                    "profile_picture": {
+                                        "description": "Image file (JPEG, PNG, JPG). Max 2 MB.",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "speaking_goals": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "build_confidence",
+                                            "improve_clarity"
+                                        ]
+                                    },
+                                    "notification_preferences[daily_reminder]": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "notification_preferences[weekly_report]": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Aspiring public speaker"
+                                                },
+                                                "profile_picture": {
+                                                    "type": "string",
+                                                    "example": "/storage/profile_pictures/abc123.jpg"
+                                                },
+                                                "speaking_goals": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "notification_preferences": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Delete account",
+                "description": "Permanently deletes the authenticated user's account after verifying their current password. All tokens are revoked immediately.",
+                "operationId": "f8574ba4a5f3de43a0f6fa1d7181b8e3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "Current account password for confirmation",
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Account deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Account deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Incorrect password"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/profile/history": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get practice history",
+                "description": "Returns all practice sessions for the authenticated user with their challenges and results, ordered by most recent first.",
+                "operationId": "d611ee5e70447bc1423d0f15c716e3bb",
+                "responses": {
+                    "200": {
+                        "description": "List of practice sessions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/PracticeSession"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/profile/share-progress": {
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Get shareable progress summary",
+                "description": "Returns a text summary of the user's progress suitable for sharing on social media or messaging.",
+                "operationId": "bc398cc60ca295802024d39d52dc7a75",
+                "responses": {
+                    "200": {
+                        "description": "Shareable progress summary",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "summary": {
+                                            "type": "string",
+                                            "example": "John's SpeechFlow Progress:\nSessions: 12\nTotal Minutes: 45\nAvg Score: 7.8"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/recordings": {
+            "post": {
+                "tags": [
+                    "Recordings"
+                ],
+                "summary": "Upload a recording for AI analysis",
+                "description": "Uploads an audio recording for a practice session. The audio is sent to the AI speech analysis engine which returns transcription, fluency scores, filler word detection, pace analysis, and personalised recommendations.",
+                "operationId": "303edde2245cff364ea2e846247387e0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "practice_session_id",
+                                    "audio"
+                                ],
+                                "properties": {
+                                    "practice_session_id": {
+                                        "description": "ID of the practice session this recording belongs to",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "audio": {
+                                        "description": "Audio file (MP3, WAV, M4A). Max 10 MB.",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Recording processed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "session": {
+                                            "$ref": "#/components/schemas/PracticeSession"
+                                        },
+                                        "result": {
+                                            "$ref": "#/components/schemas/PracticeResult"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Session does not belong to the authenticated user"
+                    },
+                    "404": {
+                        "description": "Practice session not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "description": "Creates a new user account and returns an authentication token.",
+                "operationId": "ed42f392010c301892e640067141676e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8,
+                                        "example": "SecurePass123!"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "SecurePass123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|abc123tokenstring"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login",
+                "description": "Authenticates a user and returns a Bearer token.",
+                "operationId": "8cb7742ae98d0990acb2907c4e00bf24",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "SecurePass123!"
+                                    },
+                                    "remember": {
+                                        "description": "Issue a long-lived remember token",
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "user@example.com"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "2|xyz789tokenstring"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout",
+                "description": "Revokes the current access token.",
+                "operationId": "0d29c740dc06d77602af8095bf4654cc",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Successfully logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Current user",
+                "description": "Returns the currently authenticated user.",
+                "operationId": "a9c495788506b114956e3f509e5d90a2",
+                "responses": {
+                    "200": {
+                        "description": "Current user details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "user@example.com"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Password"
+                ],
+                "summary": "Request password reset link",
+                "description": "Sends a password reset link to the given email address.",
+                "operationId": "2996882a1abb0ed4402e47c816ce5965",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Reset link sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "We have emailed your password reset link."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or unable to send reset link"
+                    }
+                }
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Password"
+                ],
+                "summary": "Reset password",
+                "description": "Resets the user password using the token received by email. All existing tokens are revoked after a successful reset.",
+                "operationId": "33d1abfb50fe487cf947393b03f2c72c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "example": "reset-token-from-email"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8,
+                                        "example": "NewSecurePass123!"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewSecurePass123!"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Your password has been reset."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or invalid/expired token"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Category": {
+                "title": "Category",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "public-speaking"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Public Speaking"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Practice your public speaking skills"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "example": "microphone"
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "Challenge": {
+                "title": "Challenge",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Introduce yourself to a new team"
+                    },
+                    "suggested_time_minutes": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "hints_available": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "tips": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "Speak clearly",
+                            "Make eye contact"
+                        ]
+                    },
+                    "category": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Category"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "level": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Level"
+                            }
+                        ],
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "Level": {
+                "title": "Level",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "beginner"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Beginner"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "For those just starting out"
+                    },
+                    "color": {
+                        "type": "string",
+                        "example": "#4CAF50"
+                    },
+                    "min_score": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "order": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "PracticeResult": {
+                "title": "PracticeResult",
+                "description": "AI-generated analysis of a speech recording",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "practice_session_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "transcription": {
+                        "type": "string",
+                        "example": "Hello everyone, my name is John and I am excited to be here today."
+                    },
+                    "feedback": {
+                        "type": "string",
+                        "example": "Overall Rating: Good\nConfidence Score: 78/100\nFluency Score: 82/100"
+                    },
+                    "score": {
+                        "description": "Confidence score 0-100",
+                        "type": "number",
+                        "format": "float",
+                        "example": 78.5
+                    },
+                    "metadata": {
+                        "description": "Detailed speech analysis data",
+                        "properties": {
+                            "improved_text": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "tts_speech": {
+                                "properties": {
+                                    "audio_content": {
+                                        "type": "string"
+                                    },
+                                    "audio_format": {
+                                        "type": "string"
+                                    },
+                                    "voice": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object",
+                                "nullable": true
+                            },
+                            "cleaned_text": {
+                                "type": "string"
+                            },
+                            "filler_words": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object"
+                                }
+                            },
+                            "filler_count": {
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "duration_seconds": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 45.2
+                            },
+                            "word_count": {
+                                "type": "integer",
+                                "example": 98
+                            },
+                            "wpm": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 130
+                            },
+                            "total_pauses": {
+                                "type": "integer",
+                                "example": 5
+                            },
+                            "total_hesitations": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "pause_durations": {
+                                "type": "array",
+                                "items": {
+                                    "type": "number"
+                                }
+                            },
+                            "average_pause_duration": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 0.8
+                            },
+                            "total_pause_time": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 4
+                            },
+                            "hesitation_words": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "fluency_score": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 82
+                            },
+                            "pause_ratio": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 0.09
+                            },
+                            "hesitation_rate": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 2.04
+                            },
+                            "wpm_score": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 85
+                            },
+                            "filler_score": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 70
+                            },
+                            "pause_score": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 75
+                            },
+                            "hesitation_score": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 80
+                            },
+                            "overall_rating": {
+                                "type": "string",
+                                "enum": [
+                                    "Excellent",
+                                    "Good",
+                                    "Moderate",
+                                    "Low",
+                                    "Very Low"
+                                ],
+                                "example": "Good"
+                            },
+                            "recommendations": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "PracticeSession": {
+                "title": "PracticeSession",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Introduce yourself Practice - Feb 08, 2026 10:30 AM"
+                    },
+                    "challenge": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Challenge"
+                            }
+                        ],
+                        "nullable": true
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "started",
+                            "recorded",
+                            "processed",
+                            "failed"
+                        ],
+                        "example": "processed"
+                    },
+                    "result": {
+                        "description": "Included when the result relationship is loaded",
+                        "properties": {
+                            "transcription": {
+                                "type": "string"
+                            },
+                            "feedback": {
+                                "type": "string"
+                            },
+                            "score": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "metadata": {
+                                "type": "object"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Enter the Bearer token obtained from /auth/login or /auth/register",
+                "bearerFormat": "Sanctum Token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Register, login, logout & current user"
+        },
+        {
+            "name": "Password",
+            "description": "Forgot & reset password"
+        },
+        {
+            "name": "Challenges",
+            "description": "Browse categories, levels & challenges"
+        },
+        {
+            "name": "Practice Sessions",
+            "description": "Start and view practice sessions"
+        },
+        {
+            "name": "Recordings",
+            "description": "Upload audio recordings for AI speech analysis"
+        },
+        {
+            "name": "Profile",
+            "description": "User profile, statistics, history & account management"
+        }
+    ]
+}

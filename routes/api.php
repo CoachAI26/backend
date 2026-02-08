@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\ChallengeController;
 use App\Http\Controllers\Api\PracticeSessionController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RecordingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,5 +33,11 @@ Route::prefix("/v1")->group(function (){
         Route::get('practice-sessions', [PracticeSessionController::class, 'index']);
         Route::get('practice-sessions/{session}', [PracticeSessionController::class, 'show']);
         Route::post('recordings', [RecordingController::class, 'store']);
+
+        Route::get('profile', [ProfileController::class, 'show']);
+        Route::post('profile', [ProfileController::class, 'update']);
+        Route::get('profile/history', [ProfileController::class, 'history']);
+        Route::get('profile/share-progress', [ProfileController::class, 'shareProgress']);
+        Route::delete('profile', [ProfileController::class, 'deleteAccount']);
     });
 });
