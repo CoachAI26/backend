@@ -1,24 +1,3 @@
-# =========================
-# Build stage for frontend
-# =========================
-FROM node:20-alpine AS node-builder
-
-WORKDIR /app
-
-COPY package*.json ./
-
-# ❌ npm ci چون lockfile نداری
-# ✅ npm install امن
-RUN npm install --no-audit --no-fund
-
-COPY resources ./resources
-COPY vite.config.js ./
-RUN npm run build
-
-
-# =========================
-# PHP stage
-# =========================
 FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache \
@@ -51,9 +30,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 COPY --chown=www-data:www-data . .
-
-# frontend build output
-COPY --from=node-builder /app/public/build ./public/build
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
