@@ -1,19 +1,26 @@
-# Build stage for frontend assets
+# =========================
+# Build stage for frontend
+# =========================
 FROM node:20-alpine AS node-builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+
+# ❌ npm ci چون lockfile نداری
+# ✅ npm install امن
+RUN npm install --no-audit --no-fund
 
 COPY resources ./resources
 COPY vite.config.js ./
 RUN npm run build
 
+
+# =========================
 # PHP stage
+# =========================
 FROM php:8.2-fpm-alpine
 
-# Install system dependencies
 RUN apk add --no-cache \
     git \
     curl \
@@ -27,7 +34,6 @@ RUN apk add --no-cache \
     mysql-client \
     supervisor
 
-# Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     pdo \
@@ -40,26 +46,21 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     zip \
     opcache
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
 COPY --chown=www-data:www-data . .
 
-# Copy built frontend assets from node stage
+# frontend build output
 COPY --from=node-builder /app/public/build ./public/build
 
-# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-# Copy PHP configuration
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
@@ -67,8 +68,6 @@ COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 RUN mkdir -p /var/log/supervisor
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expose port 9000 for PHP-FPM
 EXPOSE 9000
 
-# Start supervisor (manages PHP-FPM and queue worker)
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
