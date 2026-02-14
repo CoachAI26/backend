@@ -31,8 +31,10 @@ class SpeechAnalysisService
      */
     public function analyze(string $audioPath, string $level, string $category, string $title): array
     {
+        $mimeType = mime_content_type($audioPath) ?: 'application/octet-stream';
+
         $response = Http::timeout($this->timeout)
-            ->attach('file', fopen($audioPath, 'r'), basename($audioPath))
+            ->attach('file', fopen($audioPath, 'r'), basename($audioPath), ['Content-Type' => $mimeType])
             ->post("{$this->baseUrl}/api/v1/transcribe", [
                 'level'    => $level,
                 'category' => $category,
