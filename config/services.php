@@ -36,7 +36,7 @@ return [
     ],
 
     'speech_analysis' => [
-        'base_url' => env('SPEECH_ANALYSIS_API_URL', 'http://72.62.166.2:8000'),
+        'base_url' => env('SPEECH_ANALYSIS_API_URL', 'http://127.0.0.1:8000'),
         'timeout'  => env('SPEECH_ANALYSIS_API_TIMEOUT', 120),
     ],
 
