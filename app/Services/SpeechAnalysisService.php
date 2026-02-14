@@ -25,16 +25,21 @@ class SpeechAnalysisService
      * @param  string  $level      Challenge level name (e.g. "Beginner")
      * @param  string  $category   Challenge category name (e.g. "Public Speaking")
      * @param  string  $title      Challenge title
+     * @param  string  $filename   Original filename with extension (e.g. "recording.mp3")
      * @return array               The full JSON response from the API
      *
      * @throws RuntimeException
      */
-    public function analyze(string $audioPath, string $level, string $category, string $title): array
+    public function analyze(string $audioPath, string $level, string $category, string $title, string $filename): array
     {
         $mimeType = mime_content_type($audioPath) ?: 'application/octet-stream';
 
+        // Use a unique name with the original extension to avoid /tmp collisions on the AI server
+        $extension = pathinfo($filename, PATHINFO_EXTENSION) ?: 'wav';
+        $uniqueName = 'audio_' . uniqid() . '.' . $extension;
+
         $response = Http::timeout($this->timeout)
-            ->attach('file', fopen($audioPath, 'r'), basename($audioPath), ['Content-Type' => $mimeType])
+            ->attach('file', fopen($audioPath, 'r'), $uniqueName, ['Content-Type' => $mimeType])
             ->post("{$this->baseUrl}/api/v1/transcribe", [
                 'level'    => $level,
                 'category' => $category,

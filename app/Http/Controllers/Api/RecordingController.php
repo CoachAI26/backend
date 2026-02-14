@@ -60,7 +60,8 @@ class RecordingController extends Controller
         abort_unless($session->user_id === $request->user()->id, 403);
 
         $challenge = $session->challenge()->with(['category', 'level'])->firstOrFail();
-        $audioPath = $request->file('audio')->path();
+        $audio     = $request->file('audio');
+        $audioPath = $audio->path();
 
         // ── AI Speech Analysis ──────────────────────────────────────
         try {
@@ -69,6 +70,7 @@ class RecordingController extends Controller
                 level:     $challenge->level->name ?? '',
                 category:  $challenge->category->name ?? '',
                 title:     $challenge->title,
+                filename:  $audio->getClientOriginalName(),
             );
 
             $transcription = $analysis['text'] ?? '';
