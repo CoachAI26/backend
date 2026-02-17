@@ -76,6 +76,7 @@ class RecordingController extends Controller
             $transcription = $analysis['text'] ?? '';
             $feedback      = $this->speechAnalysis->buildFeedback($analysis);
             $score         = $analysis['confidence_score'] ?? 0;
+            $improvedText  = $analysis['improved_text'] ?? null;
             $metadata      = $this->speechAnalysis->buildMetadata($analysis);
             $status        = 'processed';
         } catch (\Throwable $e) {
@@ -87,6 +88,7 @@ class RecordingController extends Controller
             $transcription = '';
             $feedback      = 'Analysis could not be completed. Please try again.';
             $score         = 0;
+            $improvedText  = null;
             $metadata      = ['error' => $e->getMessage()];
             $status        = 'failed';
         }
@@ -96,6 +98,7 @@ class RecordingController extends Controller
         $result = $session->result()->create([
             'transcription' => $transcription,
             'feedback'      => $feedback,
+            'improved_text' => $improvedText,
             'score'         => $score,
             'metadata'      => $metadata,
         ]);

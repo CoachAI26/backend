@@ -16,6 +16,7 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'practice_session_id', type: 'integer', example: 1),
         new OA\Property(property: 'transcription', type: 'string', example: 'Hello everyone, my name is John and I am excited to be here today.'),
         new OA\Property(property: 'feedback', type: 'string', example: "Overall Rating: Good\nConfidence Score: 78/100\nFluency Score: 82/100"),
+        new OA\Property(property: 'improved_text', type: 'string', nullable: true, example: 'Hello everyone, my name is John, and I am excited to be here today.', description: 'AI-improved version of the transcribed speech'),
         new OA\Property(property: 'score', type: 'number', format: 'float', example: 78.50, description: 'Confidence score 0-100'),
         new OA\Property(property: 'metadata', type: 'object', description: 'Detailed speech analysis data', properties: [
             new OA\Property(property: 'improved_text', type: 'string', nullable: true),
@@ -59,6 +60,7 @@ class PracticeResult extends Model
         'practice_session_id',
         'transcription',
         'feedback',
+        'improved_text',
         'score',              // e.g. 7.5/10 parsed from AI or calculated
         'metadata',           // json: fillers_count, pace_wpm, etc.
     ];

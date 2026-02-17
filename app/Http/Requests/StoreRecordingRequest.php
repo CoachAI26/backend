@@ -25,7 +25,7 @@ class StoreRecordingRequest extends FormRequest
     {
         return [
             'practice_session_id' => ['required', 'exists:practice_sessions,id'],
-            'audio' => ['required', 'file', 'mimes:mp3,wav,m4a', 'max:10240'], // 10MB max
+            'audio' => ['required', 'file', 'mimes:mp3,wav,m4a'],
         ];
     }
 }

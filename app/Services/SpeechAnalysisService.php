@@ -38,6 +38,17 @@ class SpeechAnalysisService
         $extension = pathinfo($filename, PATHINFO_EXTENSION) ?: 'wav';
         $uniqueName = 'audio_' . uniqid() . '.' . $extension;
 
+        Log::info('Speech analysis API request payload', [
+            'url'       => "{$this->baseUrl}/api/v1/transcribe",
+            'level'     => $level,
+            'category'  => $category,
+            'title'     => $title,
+            'file_name' => $uniqueName,
+            'mime_type' => $mimeType,
+            'file_size' => filesize($audioPath),
+            'timeout'   => $this->timeout,
+        ]);
+
         $response = Http::timeout($this->timeout)
             ->attach('file', fopen($audioPath, 'r'), $uniqueName, ['Content-Type' => $mimeType])
             ->post("{$this->baseUrl}/api/v1/transcribe", [
