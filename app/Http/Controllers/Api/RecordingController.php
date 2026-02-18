@@ -109,6 +109,11 @@ class RecordingController extends Controller
             'completed_at' => now(),
         ]);
 
+        Log::info('Speech analysis API request payload', [
+            'improved_text' => $improvedText,
+            'result' => $result,
+        ]);
+
         return response()->json([
             'session' => new PracticeSessionResource($session->fresh()->load('result')),
             'result'  => $result,
