@@ -109,6 +109,11 @@ class RecordingController extends Controller
             'completed_at' => now(),
         ]);
 
+        Log::info('Recording processed', [
+            'session' => new PracticeSessionResource($session->fresh()->load('result')),
+            'result'  => $result,
+        ]);
+
         return response()->json([
             'session' => new PracticeSessionResource($session->fresh()->load('result')),
             'result'  => $result,
