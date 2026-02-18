@@ -110,7 +110,6 @@ class RecordingController extends Controller
         ]);
 
         Log::info('Recording processed', [
-            'session' => new PracticeSessionResource($session->fresh()->load('result')),
             'result'  => $result,
         ]);
 
