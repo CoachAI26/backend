@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
+        'is_guest',
         'name', // display name
         'bio',
         'profile_picture', // URL to uploaded image
@@ -48,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_guest' => 'boolean',
             'speaking_goals' => 'array',
             'notification_preferences' => 'array',
         ];
@@ -56,5 +58,13 @@ class User extends Authenticatable
     public function practiceSessions()
     {
         return $this->hasMany(PracticeSession::class);
+    }
+
+    /**
+     * Whether this user is a guest (free-tier, no account).
+     */
+    public function isGuest(): bool
+    {
+        return (bool) $this->is_guest;
     }
 }

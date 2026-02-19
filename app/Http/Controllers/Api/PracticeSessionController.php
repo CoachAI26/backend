@@ -67,9 +67,12 @@ class PracticeSessionController extends Controller
         ),
     )]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
+    #[OA\Response(response: 403, description: 'Session does not belong to the authenticated user')]
     #[OA\Response(response: 404, description: 'Session not found')]
-    public function show(PracticeSession $session): PracticeSessionResource
+    public function show(Request $request, PracticeSession $session): PracticeSessionResource
     {
+        abort_unless($session->user_id === $request->user()->id, 403);
+
         $session->load(['challenge.category', 'challenge.level', 'result']);
 
         return new PracticeSessionResource($session);

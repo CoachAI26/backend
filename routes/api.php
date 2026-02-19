@@ -12,8 +12,9 @@ use App\Http\Controllers\PasswordController;
 Route::prefix("/v1")->group(function (){
     Route::prefix('auth')->group(function () {
 
-        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/register', [AuthController::class, 'register'])->middleware('optional.auth');
         Route::post('/login',    [AuthController::class, 'login']);
+        Route::post('/guest',    [AuthController::class, 'guest']);
         Route::post('/forgot-password', [PasswordController::class, 'forgot']);
         Route::post('/reset-password',  [PasswordController::class, 'reset']);
     

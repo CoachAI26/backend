@@ -242,11 +242,14 @@ class ProfileController extends Controller
     #[OA\Response(response: 422, description: 'Incorrect password')]
     public function deleteAccount(Request $request): JsonResponse
     {
-        $request->validate(['password' => 'required|current_password:sanctum']);
-
         $user = $request->user();
+
+        if (! $user->isGuest()) {
+            $request->validate(['password' => 'required|current_password:sanctum']);
+        }
+
         $user->tokens()->delete();
-        $user->delete(); // Soft delete if using SoftDeletes trait, else add it
+        $user->delete();
 
         return response()->json(['message' => 'Account deleted'], Response::HTTP_OK);
     }

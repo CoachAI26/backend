@@ -6,10 +6,11 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Http\Request;
 use OpenApi\Attributes as OA;
 
 class AuthController extends Controller
@@ -48,6 +49,25 @@ class AuthController extends Controller
     #[OA\Response(response: 422, description: 'Validation error')]
     public function register(RegisterRequest $request): JsonResponse
     {
+        $currentUser = $request->user();
+
+        // If authenticated as guest, convert this account to full user (keeps their data)
+        if ($currentUser?->isGuest()) {
+            $currentUser->update([
+                'email'    => $request->validated('email'),
+                'password' => Hash::make($request->password),
+                'is_guest' => false,
+            ]);
+            $user = $currentUser->fresh();
+            $request->user()?->currentAccessToken()?->delete();
+            $token = $user->createToken('auth-token')->plainTextToken;
+
+            return response()->json([
+                'user'  => $user->only(['id', 'email', 'created_at', 'is_guest']),
+                'token' => $token,
+            ], Response::HTTP_OK);
+        }
+
         $user = User::create([
             'email'    => $request->email,
             'password' => Hash::make($request->password),
@@ -56,7 +76,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
-            'user'  => $user->only(['id', 'email', 'created_at']),
+            'user'  => $user->only(['id', 'email', 'created_at', 'is_guest']),
             'token' => $token,
         ], Response::HTTP_CREATED);
     }
@@ -103,6 +123,11 @@ class AuthController extends Controller
             ]);
         }
 
+        if ($user->isGuest()) {
+            throw ValidationException::withMessages([
+                'email' => __('Guest accounts cannot sign in with email and password. Create an account to continue.'),
+            ]);
+        }
 
         $tokenName = $request->boolean('remember')
             ? 'remember-token'
@@ -111,9 +136,46 @@ class AuthController extends Controller
         $token = $user->createToken($tokenName)->plainTextToken;
 
         return response()->json([
-            'user'  => $user->only(['id', 'email', 'created_at']),
+            'user'  => $user->only(['id', 'email', 'created_at', 'is_guest']),
             'token' => $token,
         ]);
+    }
+
+    #[OA\Post(
+        path: '/auth/guest',
+        summary: 'Create guest session',
+        description: 'Creates a temporary guest user and returns a Bearer token. Free-tier users can use the app and their data is stored under this guest user. Use register (with this token in Authorization header) to convert to a full account and keep data.',
+        tags: ['Authentication'],
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Guest session created',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'user', type: 'object', properties: [
+                    new OA\Property(property: 'id', type: 'integer', example: 1),
+                    new OA\Property(property: 'email', type: 'string', example: 'guest_01ARZ3NDEKTSV4RRFFQ69G5FAV@guest.local'),
+                    new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+                    new OA\Property(property: 'is_guest', type: 'boolean', example: true),
+                ]),
+                new OA\Property(property: 'token', type: 'string', example: '3|guest_token_xyz'),
+            ],
+        ),
+    )]
+    public function guest(Request $request): JsonResponse
+    {
+        $user = User::create([
+            'email'    => 'guest_' . Str::ulid() . '@guest.local',
+            'password' => Hash::make(Str::random(32)),
+            'is_guest' => true,
+        ]);
+
+        $token = $user->createToken('guest-token')->plainTextToken;
+
+        return response()->json([
+            'user'  => $user->only(['id', 'email', 'created_at', 'is_guest']),
+            'token' => $token,
+        ], Response::HTTP_CREATED);
     }
 
     #[OA\Post(
@@ -165,15 +227,17 @@ class AuthController extends Controller
                 new OA\Property(property: 'id', type: 'integer', example: 1),
                 new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
                 new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
+                new OA\Property(property: 'is_guest', type: 'boolean', example: false),
             ],
         ),
     )]
     #[OA\Response(response: 401, description: 'Unauthenticated')]
     public function me(Request $request): JsonResponse
     {
+        $user = $request->user();
         return response()->json(
-            $request->user()?->only(['id', 'email', 'created_at']) ?? ['message' => 'Unauthenticated'],
-            $request->user() ? 200 : 401
+            $user ? $user->only(['id', 'email', 'created_at', 'is_guest']) : ['message' => 'Unauthenticated'],
+            $user ? 200 : 401
         );
     }
 }
