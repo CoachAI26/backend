@@ -17,23 +17,35 @@ class ChallengeController extends Controller
     #[OA\Get(
         path: '/categories',
         summary: 'List all categories',
-        description: 'Returns all challenge categories ordered by their display order.',
+        description: 'Returns top-level (parent) categories with their subs (children), ordered by display order.',
         tags: ['Challenges'],
     )]
     #[OA\Response(
         response: 200,
-        description: 'List of categories',
+        description: 'List of parent categories with subs',
         content: new OA\JsonContent(
             type: 'object',
             properties: [
                 new OA\Property(property: 'data', type: 'array', items: new OA\Items(
                     properties: [
                         new OA\Property(property: 'id', type: 'integer', example: 1),
+                        new OA\Property(property: 'parent_id', type: 'integer', nullable: true, example: null),
                         new OA\Property(property: 'slug', type: 'string', example: 'public-speaking'),
                         new OA\Property(property: 'name', type: 'string', example: 'Public Speaking'),
                         new OA\Property(property: 'description', type: 'string', example: 'Practice your public speaking skills'),
                         new OA\Property(property: 'icon', type: 'string', example: 'microphone'),
                         new OA\Property(property: 'order', type: 'integer', example: 1),
+                        new OA\Property(property: 'subs', type: 'array', items: new OA\Items(
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer'),
+                                new OA\Property(property: 'parent_id', type: 'integer'),
+                                new OA\Property(property: 'slug', type: 'string'),
+                                new OA\Property(property: 'name', type: 'string'),
+                                new OA\Property(property: 'description', type: 'string', nullable: true),
+                                new OA\Property(property: 'icon', type: 'string', nullable: true),
+                                new OA\Property(property: 'order', type: 'integer'),
+                            ],
+                        )),
                     ],
                 )),
             ],
@@ -41,7 +53,12 @@ class ChallengeController extends Controller
     )]
     public function categories(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        return CategoryResource::collection(Category::orderBy('order')->get());
+        $parents = Category::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('order')
+            ->get();
+
+        return CategoryResource::collection($parents);
     }
 
     #[OA\Get(
