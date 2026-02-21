@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\SpeechAnalysisException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreRecordingRequest;
 use App\Http\Resources\PracticeSessionResource;
@@ -79,6 +80,21 @@ class RecordingController extends Controller
             $improvedText  = $analysis['improved_text'] ?? null;
             $metadata      = $this->speechAnalysis->buildMetadata($analysis);
             $status        = 'processed';
+        } catch (SpeechAnalysisException $e) {
+            Log::error('Speech analysis failed', [
+                'session_id'  => $session->id,
+                'http_status' => $e->httpStatus,
+                'error'       => $e->getMessage(),
+            ]);
+
+            $transcription = '';
+            $feedback      = $e->httpStatus === 400
+                ? 'Please speak in English. Other languages are not accepted.'
+                : 'Analysis could not be completed. Please try again.';
+            $score         = 0;
+            $improvedText  = null;
+            $metadata      = ['error' => $e->getMessage()];
+            $status        = 'failed';
         } catch (\Throwable $e) {
             Log::error('Speech analysis failed', [
                 'session_id' => $session->id,

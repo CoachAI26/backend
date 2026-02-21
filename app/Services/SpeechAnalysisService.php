@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Exceptions\SpeechAnalysisException;
 use RuntimeException;
 
 class SpeechAnalysisService
@@ -63,8 +64,10 @@ class SpeechAnalysisService
                 'body'   => $response->body(),
             ]);
 
-            throw new RuntimeException(
-                "Speech analysis API returned HTTP {$response->status()}: {$response->body()}"
+            throw new SpeechAnalysisException(
+                "Speech analysis API returned HTTP {$response->status()}: {$response->body()}",
+                httpStatus:    $response->status(),
+                responseBody:  $response->body(),
             );
         }
 
