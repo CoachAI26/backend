@@ -25,6 +25,7 @@ class RegisterRequest extends FormRequest
         $userId = $this->user()?->isGuest() ? $this->user()->id : null;
 
         return [
+            'name'     => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'    => ['required', 'email', 'max:255', 'unique:users,email,' . $userId],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];

@@ -26,6 +26,7 @@ class AuthController extends Controller
         content: new OA\JsonContent(
             required: ['email', 'password', 'password_confirmation'],
             properties: [
+                new OA\Property(property: 'name', type: 'string', maxLength: 255, nullable: true, example: 'John Doe'),
                 new OA\Property(property: 'email', type: 'string', format: 'email', example: 'user@example.com'),
                 new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 8, example: 'SecurePass123!'),
                 new OA\Property(property: 'password_confirmation', type: 'string', format: 'password', example: 'SecurePass123!'),
@@ -39,6 +40,7 @@ class AuthController extends Controller
             properties: [
                 new OA\Property(property: 'user', type: 'object', properties: [
                     new OA\Property(property: 'id', type: 'integer', example: 1),
+                    new OA\Property(property: 'name', type: 'string', nullable: true, example: 'John Doe'),
                     new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
                     new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
                 ]),
@@ -54,6 +56,7 @@ class AuthController extends Controller
         // If authenticated as guest, convert this account to full user (keeps their data)
         if ($currentUser?->isGuest()) {
             $currentUser->update([
+                'name'     => $request->validated('name'),
                 'email'    => $request->validated('email'),
                 'password' => Hash::make($request->password),
                 'is_guest' => false,
@@ -63,12 +66,13 @@ class AuthController extends Controller
             $token = $user->createToken('auth-token')->plainTextToken;
 
             return response()->json([
-                'user'  => $user->only(['id', 'email', 'created_at', 'is_guest']),
+                'user'  => $user->only(['id', 'name', 'email', 'created_at', 'is_guest']),
                 'token' => $token,
             ], Response::HTTP_OK);
         }
 
         $user = User::create([
+            'name'     => $request->validated('name'),
             'email'    => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -76,7 +80,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
-            'user'  => $user->only(['id', 'email', 'created_at', 'is_guest']),
+            'user'  => $user->only(['id', 'name', 'email', 'created_at', 'is_guest']),
             'token' => $token,
         ], Response::HTTP_CREATED);
     }
@@ -105,6 +109,7 @@ class AuthController extends Controller
             properties: [
                 new OA\Property(property: 'user', type: 'object', properties: [
                     new OA\Property(property: 'id', type: 'integer', example: 1),
+                    new OA\Property(property: 'name', type: 'string', nullable: true, example: 'John Doe'),
                     new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
                     new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
                 ]),
@@ -136,7 +141,7 @@ class AuthController extends Controller
         $token = $user->createToken($tokenName)->plainTextToken;
 
         return response()->json([
-            'user'  => $user->only(['id', 'email', 'created_at', 'is_guest']),
+            'user'  => $user->only(['id', 'name', 'email', 'created_at', 'is_guest']),
             'token' => $token,
         ]);
     }
@@ -225,6 +230,7 @@ class AuthController extends Controller
         content: new OA\JsonContent(
             properties: [
                 new OA\Property(property: 'id', type: 'integer', example: 1),
+                new OA\Property(property: 'name', type: 'string', nullable: true, example: 'John Doe'),
                 new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
                 new OA\Property(property: 'created_at', type: 'string', format: 'date-time'),
                 new OA\Property(property: 'is_guest', type: 'boolean', example: false),
@@ -236,7 +242,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
         return response()->json(
-            $user ? $user->only(['id', 'email', 'created_at', 'is_guest']) : ['message' => 'Unauthenticated'],
+            $user ? $user->only(['id', 'name', 'email', 'created_at', 'is_guest']) : ['message' => 'Unauthenticated'],
             $user ? 200 : 401
         );
     }
